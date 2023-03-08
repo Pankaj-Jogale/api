@@ -6,3 +6,4 @@ export const db = mysql.createConnection({
   password: "Pankaj@3",
   database: "social",
 });
+//changes made in frontend
