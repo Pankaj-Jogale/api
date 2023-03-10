@@ -5,10 +5,11 @@ import authRoutes from "./routes/auth.js";
 import commentRoutes from "./routes/comments.js";
 import likeRoutes from "./routes/likes.js";
 import relationshipRoutes from "./routes/relationships.js";
-
+import adminRoutes from "./routes/admin.js";
 import postRoutes from "./routes/posts.js";
 import cookieParser from "cookie-parser";
 import multer from "multer";
+import { db } from "./connect.js";
 
 const app = express();
 //middlewares(allow to send json obj)
@@ -44,7 +45,24 @@ app.use("/api/posts", postRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/likes", likeRoutes);
 app.use("/api/relationships", relationshipRoutes);
+app.use("/api/admin", adminRoutes);
 
+app.get("/messages", (req, res) => {
+  console.log("called");
+  res.send("Hello, NodeJS people2!");
+});
+
+app.get("/frds", (req, res) => {
+  console.log("called");
+  let followerId = 4;
+  const q = `select * from users`;
+  const q1 = `SELECT users.id,users.name,users.profilePic FROM users JOIN relationships ON users.id = relationships.followedUserId
+    WHERE relationships.followerUserId = ${followerId}`;
+  db.query(q1, (err, data) => {
+    if (err) return res.status(500).json(err);
+    return res.status(200).json(data);
+  });
+});
 app.listen(8800, () => {
   console.log("API WRKing on 8800 port");
 });

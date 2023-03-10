@@ -1,10 +1,10 @@
 import { db } from "../connect.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+
 export const register = (req, res) => {
-  //check user exists
-  const q = "SELECT * FROM users WHERE username = ?";
-  db.query(q, [req.body.username], (err, data) => {
+  const q = "SELECT * FROM admin WHERE adminname = ?";
+  db.query(q, [req.body.adminname], (err, data) => {
     if (err) return res.status(500).json(err);
     if (data.length) return res.status(409).json("User already exists!");
 
@@ -14,24 +14,18 @@ export const register = (req, res) => {
     const salt = bcrypt.genSaltSync(10); //making random string that makes hash unpredictable
     const hashedPassword = bcrypt.hashSync(req.body.password, salt);
 
-    const q =
-      "INSERT INTO users (`username`,`email`,`password`,`name`) VALUE (?)";
-    const values = [
-      req.body.username,
-      req.body.email,
-      hashedPassword,
-      req.body.name,
-    ];
+    const q = "INSERT INTO admin (`adminname`,`password`) VALUE (?)";
+    const values = [req.body.adminname, hashedPassword];
     db.query(q, [values], (err, data) => {
       if (err) return res.status(500).json(err);
-      return res.status(200).json("Admin has been created");
+      return res.status(200).json("User has been created");
     });
   });
 };
 
 export const login = (req, res) => {
-  const q = "SELECT * FROM users WHERE USERNAME = ?";
-  db.query(q, [req.body.username], (err, data) => {
+  const q = "SELECT * FROM admin WHERE adminname = ?";
+  db.query(q, [req.body.adminname], (err, data) => {
     if (err) return res.status(500).json(err);
     if (data.length === 0) return res.status(404).json("User not found");
 
@@ -45,20 +39,10 @@ export const login = (req, res) => {
     const token = jwt.sign({ id: data[0].id }, "secretkey");
     const { password, ...others } = data[0]; //neglcting password from all info
     res
-      .cookie("accessToken", token, {
+      .cookie("adminToken", token, {
         httpOnly: true,
       })
       .status(200)
       .json(others);
   });
-};
-
-export const logout = (req, res) => {
-  res
-    .clearCookie("accessToken", {
-      secure: true,
-      sameSite: "none", //api&react port diff so to avoid block in securing
-    })
-    .status(200)
-    .json("User has been logged-out");
 };
