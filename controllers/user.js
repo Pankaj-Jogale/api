@@ -1,8 +1,9 @@
 import { db } from "../connect.js";
 import jwt from "jsonwebtoken";
 export const getUser = (req, res) => {
+  console.log("in get user");
   const userId = req.params.userId;
-
+  console.log(userId);
   const q = "SELECT * FROM users WHERE id=?";
 
   db.query(q, [userId], (err, data) => {

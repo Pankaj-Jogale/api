@@ -30,6 +30,7 @@ export const register = (req, res) => {
 };
 
 export const login = (req, res) => {
+  console.log("login");
   const q = "SELECT * FROM users WHERE USERNAME = ?";
   db.query(q, [req.body.username], (err, data) => {
     if (err) return res.status(500).json(err);
@@ -47,6 +48,8 @@ export const login = (req, res) => {
     res
       .cookie("accessToken", token, {
         httpOnly: true,
+        secure: true,
+        sameSite: "none",
       })
       .status(200)
       .json(others);
@@ -54,6 +57,7 @@ export const login = (req, res) => {
 };
 
 export const logout = (req, res) => {
+  console.log("in logout");
   res
     .clearCookie("accessToken", {
       secure: true,
@@ -61,4 +65,22 @@ export const logout = (req, res) => {
     })
     .status(200)
     .json("User has been logged-out");
+};
+
+export const verifyToken = (req, res, next) => {
+  const token = req.cookies.accessToken;
+
+  if (!token) {
+    return res.status(401).json({ message: "Access token not found" });
+  } else {
+    return res.status(200).json({ message: "Access token  found" });
+  }
+
+  // try {
+  //   const decoded = jwt.verify(token, "secretkey");
+  //   req.userId = decoded.id;
+  //   next();
+  // } catch (err) {
+  //   return res.status(401).json({ message: "Invalid access token" });
+  // }
 };

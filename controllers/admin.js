@@ -24,11 +24,12 @@ export const register = (req, res) => {
 };
 
 export const login = (req, res) => {
+  console.log("called5");
   const q = "SELECT * FROM admin WHERE adminname = ?";
   db.query(q, [req.body.adminname], (err, data) => {
     if (err) return res.status(500).json(err);
     if (data.length === 0) return res.status(404).json("User not found");
-
+    console.log("called6");
     const checkPassword = bcrypt.compareSync(
       req.body.password,
       data[0].password //user at 0 as array has match record which is 1
