@@ -74,10 +74,12 @@ app.get("/stories", (req, res) => {
   const search = req.query.id;
   console.log(search);
   console.log("stories");
-  const q = `SELECT s.img, s.userId FROM stories s INNER JOIN relationships r ON s.userId = r.followedUserId WHERE r.followerUserId = ${search}`;
+  const q2 = `SELECT DISTINCT p.*, u.id AS userId, name, profilePic FROM stories AS p JOIN users AS u ON (u.id = p.userId)
+    LEFT JOIN relationships AS r ON (p.userId = r.followedUserId) WHERE r.followerUserId= ${search} OR p.userId = ${search} ORDER BY id DESC`;
+
   const q1 = `SELECT p.*, u.id AS userId, name, profilePic FROM stories AS p JOIN users AS u ON (u.id = p.userId)
     LEFT JOIN relationships AS r ON (p.userId = r.followedUserId) WHERE r.followerUserId= ${search} OR p.userId = ${search} ORDER BY id DESC `;
-  db.query(q1, (err, data) => {
+  db.query(q2, (err, data) => {
     if (err) return res.status(500).json(err);
     return res.status(200).json(data);
   });
@@ -137,6 +139,17 @@ app.post("/getmsg", (req, res) => {
     return res.status(200).json(data);
   });
 });
+
+app.get("/userslist", (req, res) => {
+  console.log("calledlist");
+  const q = `SELECT * FROM users`;
+
+  db.query(q, (err, data) => {
+    if (err) return res.status(500).json(err);
+    return res.status(200).json(data);
+  });
+});
+
 app.get("/users", (req, res) => {
   console.log("called4");
   // const search = req.query.name.toLowerCase().replace(/\s+/g, "");
